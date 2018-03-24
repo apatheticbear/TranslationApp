@@ -5,7 +5,7 @@
  */
 
 import React, { Component } from 'react';
-import { Button,Alert } from 'react-native';
+import { Button,Alert,CameraRoll } from 'react-native';
 import { TouchableHighlight, TouchableOpacity, TouchableNativeFeedback, TouchableWithoutFeedback, } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import { StackNavigator,} from 'react-navigation';
@@ -30,15 +30,24 @@ export class App extends Component<Props> {
     //Alert.alert("You tapped the button!")
   }
 
-  _onLongPressButton() {
-      Alert.alert('You long-pressed the button!')
-    }
+   //Call this function to add a picture to the camera roll
+   //expects promise with uri
+   saveToCameraRollFolder(data)
+   {
+        //CameraRoll.saveToCameraRoll(data.uri);
+        RNFetchBlob.fs.appendFile( '/internal storage/DCIM/Transapp', data.uri, 'uri')
+            .then(()=>{  })
+        Alert.alert(data.uri)
+   }
 
+   //Takes a picture
    takePicture = async function() {
        if (this.camera) {
-         const options = { quality: 0.5, base64: true };
+         const options = { quality: 0.5 };
          const data = await this.camera.takePictureAsync(options);
-         console.log(data.uri);
+         this.camera.takePictureAsync(options).then(data => {
+                CameraRoll.saveToCameraRoll(data.uri);
+          })
        }
      };
 
@@ -64,11 +73,6 @@ export class App extends Component<Props> {
                      <Text style={{fontSize: 14}}> SNAP </Text>
                  </TouchableOpacity>
                  </View>
-        <Button
-            onPress={this.pressed}
-            title="Open Camera"
-            color="rgb(255,0,0)"
-         />
 
       </View>
     );
