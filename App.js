@@ -9,6 +9,7 @@ import { Button,Alert,CameraRoll } from 'react-native';
 import { TouchableHighlight, TouchableOpacity, TouchableNativeFeedback, TouchableWithoutFeedback, } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import { StackNavigator,} from 'react-navigation';
+import RNFetchBlob from 'react-native-fetch-blob';
 
 import {
   Platform,
@@ -24,7 +25,7 @@ const instructions = Platform.select({
     'Shake or press menu button for dev menu',
 });
 
-//const dirs = RNFetchBlob.fs.dirs;
+const dirs = RNFetchBlob.fs.dirs;
 
 type Props = {};
 export class App extends Component<Props> {
@@ -42,14 +43,28 @@ export class App extends Component<Props> {
         //.then(()=>{ ... })
    //}
 
+   addPictureToDirectory(data)
+   {
+        string = /\/[a-zA-Z0-9-\.]+$/;
+        picString = data.match(string);
+        if (picString == null)
+        {
+            Promise.reject("Failed to add picture");
+        }
+        else
+        {
+         Promise.resolve(RNFetchBlob.fs.appendFile(dirs.PictureDir + "/TranslationApp" + picString[0], data, 'uri')
+            .then(()=>{}));
+        }
+   }
+
    //Takes a picture
    takePicture = async function() {
        if (this.camera) {
          const options = { quality: 0.5 };
          const data = await this.camera.takePictureAsync(options);
          this.camera.takePictureAsync(options).then(data => {
-                CameraRoll.saveToCameraRoll(data.uri);
-                Alert.alert(data.uri);
+                this.addPictureToDirectory(data.uri);
           })
        }
      };
