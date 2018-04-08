@@ -9,6 +9,7 @@ import { Button,Alert,CameraRoll } from 'react-native';
 import { TouchableHighlight, TouchableOpacity, TouchableNativeFeedback, TouchableWithoutFeedback, } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import { StackNavigator,} from 'react-navigation';
+
 import {
   Platform,
   StyleSheet,
@@ -23,6 +24,8 @@ const instructions = Platform.select({
     'Shake or press menu button for dev menu',
 });
 
+//const dirs = RNFetchBlob.fs.dirs;
+
 type Props = {};
 export class App extends Component<Props> {
 
@@ -32,13 +35,12 @@ export class App extends Component<Props> {
 
    //Call this function to add a picture to the camera roll
    //expects promise with uri
-   saveToCameraRollFolder(data)
-   {
+   //saveToCameraRollFolder(data)
+   //{
         //CameraRoll.saveToCameraRoll(data.uri);
-        RNFetchBlob.fs.appendFile( '/internal storage/DCIM/Transapp', data.uri, 'uri')
-            .then(()=>{  })
-        Alert.alert(data.uri)
-   }
+      //  RNFetchBlob.fs.writeFile(PATH_TO_WRITE, PATH_TO_ANOTHER_FILE, 'uri')
+        //.then(()=>{ ... })
+   //}
 
    //Takes a picture
    takePicture = async function() {
@@ -47,6 +49,7 @@ export class App extends Component<Props> {
          const data = await this.camera.takePictureAsync(options);
          this.camera.takePictureAsync(options).then(data => {
                 CameraRoll.saveToCameraRoll(data.uri);
+                Alert.alert(data.uri);
           })
        }
      };
