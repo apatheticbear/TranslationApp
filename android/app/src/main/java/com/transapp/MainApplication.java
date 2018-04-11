@@ -12,6 +12,7 @@ import com.RNFetchBlob.RNFetchBlobPackage;
 import java.util.Arrays;
 import java.util.List;
 import org.reactnative.camera.RNCameraPackage;
+import com.reactlibrary.RNTesseractOcrPackage;
 
 
 public class MainApplication extends Application implements ReactApplication {
@@ -26,7 +27,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(), new RNCameraPackage(),
-              new RNFetchBlobPackage()
+              new RNFetchBlobPackage(), new RNTesseractOcrPackage()
       );
     }
 

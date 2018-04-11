@@ -10,6 +10,7 @@ import { TouchableHighlight, TouchableOpacity, TouchableNativeFeedback, Touchabl
 import { RNCamera } from 'react-native-camera';
 import { StackNavigator,} from 'react-navigation';
 import RNFetchBlob from 'react-native-fetch-blob';
+import RNTesseractOcr from 'react-native-tesseract-ocr';
 
 import {
   Platform,
