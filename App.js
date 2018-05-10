@@ -5,7 +5,7 @@
  */
 
 import React, { Component } from 'react';
-import { Button,Alert,CameraRoll } from 'react-native';
+import { Button,Alert,CameraRoll, ScrollView } from 'react-native';
 import { TouchableHighlight, TouchableOpacity, TouchableNativeFeedback, TouchableWithoutFeedback, } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import { StackNavigator,} from 'react-navigation';
@@ -31,32 +31,34 @@ const dirs = RNFetchBlob.fs.dirs;
 type Props = {};
 export class App extends Component<Props> {
 
-  pressed(){
-    //Alert.alert("You tapped the button!")
-  }
-
-   //Call this function to add a picture to the camera roll
-   //expects promise with uri
-   //saveToCameraRollFolder(data)
-   //{
-        //CameraRoll.saveToCameraRoll(data.uri);
-      //  RNFetchBlob.fs.writeFile(PATH_TO_WRITE, PATH_TO_ANOTHER_FILE, 'uri')
-        //.then(()=>{ ... })
-   //}
-
+    //Adds a picture to the app's photo gallery album
    addPictureToDirectory(data)
    {
+        //regex to get image name
         string = /\/[a-zA-Z0-9-\.]+$/;
+        //puts the image name into the variable picString
         picString = data.match(string);
+        //Location of the album
+        fileLocation = dirs.PictureDir + "/TranslationApp";
         if (picString == null)
         {
             Promise.reject("Failed to add picture");
         }
         else
         {
-         Promise.resolve(RNFetchBlob.fs.appendFile(dirs.PictureDir + "/TranslationApp" + picString[0], data, 'uri')
-            .then(()=>{}));
+         //adds the image to the image album
+         Promise.resolve(RNFetchBlob.fs.appendFile(fileLocation + picString[0], data, 'uri'))
+            .then(()=>{})
         }
+
+        //updates the media files in android to show in picture gallery
+        RNFetchBlob.fs.scanFile([{path : fileLocation + picString[0], mime : 'image'}])
+        .then(() => {
+             console.log("Scan file success");
+        })
+        .catch((err) =>{
+             console.log("Scan file error");
+        })
    }
 
    //Takes a picture
@@ -68,45 +70,54 @@ export class App extends Component<Props> {
                 this.addPictureToDirectory(data.uri);
           })
        }
-     };
+   };
 
   render() {
     return (
-      <View style={styles.container}>
-         <RNCamera
-                     ref={ref => {
-                       this.camera = ref;
-                     }}
-                     style = {styles.preview}
-                     type={RNCamera.Constants.Type.back}
-                     flashMode={RNCamera.Constants.FlashMode.off}
-                     permissionDialogTitle={'Permission to use camera'}
-                     permissionDialogMessage={'We need your permission to use your camera phone'}
-                 />
 
-                 <View style={{flex: 0, flexDirection: 'row', justifyContent: 'center',}}>
-                 <TouchableOpacity
-                     onPress={this.takePicture.bind(this)}
-                     style = {styles.capture}
-                 >
-                     <Text style={{fontSize: 14}}> SNAP </Text>
-                 </TouchableOpacity>
-                 </View>
+      <View style={styles.container}>
+         <Text>Details Screen</Text>
+         <TouchableHighlight
+            style={styles.libraryButton}
+            onPress={() => this.props.navigation.navigate('Library')}
+            underlayColor = 'red'
+         >
+            <Text> Library </Text>
+         </TouchableHighlight>
+         <RNCamera
+            ref={ref => {
+                this.camera = ref;
+            }}
+            style = {styles.preview}
+            type={RNCamera.Constants.Type.back}
+            flashMode={RNCamera.Constants.FlashMode.off}
+            permissionDialogTitle={'Permission to use camera'}
+            permissionDialogMessage={'We need your permission to use your camera phone'}
+            />
+
+             <View style={{flex: 0, flexDirection: 'row', justifyContent: 'center',}}>
+                <TouchableOpacity
+                    onPress={this.takePicture.bind(this)}
+                    style = {styles.capture}
+                >
+                <Text style={{fontSize: 14}}> SNAP </Text>
+                </TouchableOpacity>
+             </View>
 
       </View>
     );
   }
 }
 
-class DetailsScreen extends React.Component {
+class LibraryScreen extends React.Component {
   render() {
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
         <Text>Details Screen</Text>
         <Button
-                                                   title="Go to Camera"
-                                                   onPress={() => this.props.navigation.navigate('Camera')}
-                                                 />
+            title="Go to Camera"
+            onPress={() => this.props.navigation.navigate('Camera')}
+        />
       </View>
 
     );
@@ -114,19 +125,25 @@ class DetailsScreen extends React.Component {
 }
 
 export default StackNavigator({
-    Details: {
-      screen: DetailsScreen,
+    Library: {
+      screen: LibraryScreen,
     },
     Camera: {
         screen: App,
     },
 },
   {
-    initialRouteName: 'Details',
+    initialRouteName: 'Camera',
   }
 );
 const styles = StyleSheet.create({
-
+  libraryButton: {
+    width: 50,
+    height: 50,
+    backgroundColor: 'white',
+    top: -20,
+    left: 10,
+  },
   container: {
     flex: 1,
     flexDirection: 'column',
