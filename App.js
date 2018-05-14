@@ -11,13 +11,8 @@ import { RNCamera } from 'react-native-camera';
 import { StackNavigator,} from 'react-navigation';
 import RNFetchBlob from 'react-native-fetch-blob';
 import RNTesseractOcr from 'react-native-tesseract-ocr';
-
-import {
-  Platform,
-  StyleSheet,
-  Text,
-  View
-} from 'react-native';
+import { Platform, StyleSheet, Text, View, Dimensions } from 'react-native';
+import { TabViewAnimated, TabBar, SceneMap } from 'react-native-tab-view';
 
 const instructions = Platform.select({
   ios: 'Press Cmd+R to reload,\n' +
@@ -29,7 +24,57 @@ const instructions = Platform.select({
 const dirs = RNFetchBlob.fs.dirs;
 
 type Props = {};
+
+//for tab view
+const initialLayout = {
+  height: 0,
+  width: Dimensions.get('window').width,
+};
+
 export class App extends Component<Props> {
+
+GalleryRoute = () => <View style={[ styles.container, { backgroundColor: 'blue' } ]} />;
+CameraRoute = () => <View style={[ styles.container, { backgroundColor: 'black' } ]} >
+                            <RNCamera
+                                ref={ref => {
+                                    this.camera = ref;
+                                }}
+                                style = {styles.preview}
+                                type={RNCamera.Constants.Type.back}
+                                flashMode={RNCamera.Constants.FlashMode.off}
+                                permissionDialogTitle={'Permission to use camera'}
+                                permissionDialogMessage={'We need your permission to use your camera phone'}
+                            />
+                            <View style={{flex: 0, flexDirection: 'row', justifyContent: 'center',}}>
+                                <TouchableOpacity
+                                    onPress={this.takePicture.bind(this)}
+                                    style = {styles.capture}
+                                >
+                                    <Text style={{fontSize: 14}}> SNAP </Text>
+                                </TouchableOpacity>
+                            </View>
+                          </View>
+LibraryRoute = () => <View style={[ styles.container, { backgroundColor: 'green' } ]} />;
+
+//for tab view
+      state = {
+        index: 0,
+        routes: [
+          { key: 'gallery', title: 'Gallery' },
+          { key: 'camera', title: 'Camera' },
+          { key: 'library', title: 'Library' },
+        ],
+      };
+
+    _handleIndexChange = index => this.setState({ index });
+
+    _renderFooter = props => <TabBar {...props} />;
+
+    _renderScene = SceneMap({
+        gallery: this.GalleryRoute,
+        camera: this.CameraRoute,
+        library: this.LibraryRoute,
+    });
 
     //Adds a picture to the app's photo gallery album
    addPictureToDirectory(data)
@@ -76,34 +121,13 @@ export class App extends Component<Props> {
     return (
 
       <View style={styles.container}>
-         <Text>Details Screen</Text>
-         <TouchableHighlight
-            style={styles.libraryButton}
-            onPress={() => this.props.navigation.navigate('Library')}
-            underlayColor = 'red'
-         >
-            <Text> Library </Text>
-         </TouchableHighlight>
-         <RNCamera
-            ref={ref => {
-                this.camera = ref;
-            }}
-            style = {styles.preview}
-            type={RNCamera.Constants.Type.back}
-            flashMode={RNCamera.Constants.FlashMode.off}
-            permissionDialogTitle={'Permission to use camera'}
-            permissionDialogMessage={'We need your permission to use your camera phone'}
-            />
-
-             <View style={{flex: 0, flexDirection: 'row', justifyContent: 'center',}}>
-                <TouchableOpacity
-                    onPress={this.takePicture.bind(this)}
-                    style = {styles.capture}
-                >
-                <Text style={{fontSize: 14}}> SNAP </Text>
-                </TouchableOpacity>
-             </View>
-
+         <TabViewAnimated
+            navigationState={this.state}
+            renderScene={this._renderScene}
+            renderFooter={this._renderFooter}
+            onIndexChange={this._handleIndexChange}
+            initialLayout={initialLayout}
+         />
       </View>
     );
   }
@@ -146,8 +170,6 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    flexDirection: 'column',
-    backgroundColor: 'black'
   },
   welcome: {
     fontSize: 20,
