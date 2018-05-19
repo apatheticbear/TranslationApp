@@ -33,7 +33,12 @@ const initialLayout = {
 
 export class App extends Component<Props> {
 
-GalleryRoute = () => <View style={[ styles.container, { backgroundColor: 'blue' } ]} />;
+GalleryRoute = () => <View style={[ styles.container, { backgroundColor: 'blue' } ]} >
+                        <Button
+                            title="Open Image Gallery"
+                            
+                        />
+                     </View>
 CameraRoute = () => <View style={[ styles.container, { backgroundColor: 'black' } ]} >
                             <RNCamera
                                 ref={ref => {
