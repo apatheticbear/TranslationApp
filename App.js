@@ -11,7 +11,7 @@ import { RNCamera } from 'react-native-camera';
 import { StackNavigator,} from 'react-navigation';
 import RNFetchBlob from 'react-native-fetch-blob';
 import RNTesseractOcr from 'react-native-tesseract-ocr';
-import { Platform, StyleSheet, Text, View, Dimensions } from 'react-native';
+import { Platform, StyleSheet, Text, View, Dimensions, Image } from 'react-native';
 import { TabViewAnimated, TabBar, SceneMap } from 'react-native-tab-view';
 
 const instructions = Platform.select({
@@ -31,13 +31,35 @@ const initialLayout = {
   width: Dimensions.get('window').width,
 };
 
+//for image picker
+let ImagePicker = require('react-native-image-picker');
+
+let options = {
+    title:'Select image',
+    storageOptions: {
+        skipBackup: true,
+        path: 'images'
+    }
+};
+
 export class App extends Component<Props> {
+
+      state = {
+        avatarSource: undefined,
+        index: 0,
+        routes: [
+          { key: 'gallery', title: 'Gallery' },
+          { key: 'camera', title: 'Camera' },
+          { key: 'library', title: 'Library' },
+        ],
+      };
 
 GalleryRoute = () => <View style={[ styles.container, { backgroundColor: 'blue' } ]} >
                         <Button
                             title="Open Image Gallery"
-                            
+                            onPress={ () => this.openImagePicker()}
                         />
+                        <Image source={this.state.avatarSource} style={styles.imagePick}/>
                      </View>
 CameraRoute = () => <View style={[ styles.container, { backgroundColor: 'black' } ]} >
                             <RNCamera
@@ -61,15 +83,29 @@ CameraRoute = () => <View style={[ styles.container, { backgroundColor: 'black' 
                           </View>
 LibraryRoute = () => <View style={[ styles.container, { backgroundColor: 'green' } ]} />;
 
+//for image picker
+
+    openImagePicker = () => {
+        console.log(this.state.avatarSource);
+        ImagePicker.launchImageLibrary(options, (response) => {
+            if (response.error) {
+                console.log('ImagePicker Error: ', response.error);
+            }
+            else {
+                let source = response.uri;
+                this.setState({
+                    avatarSource: source
+                });
+                this.check();
+            }
+        });
+    };
+
+    check = () => {
+        console.log(this.state.avatarSource);
+    }
+
 //for tab view
-      state = {
-        index: 0,
-        routes: [
-          { key: 'gallery', title: 'Gallery' },
-          { key: 'camera', title: 'Camera' },
-          { key: 'library', title: 'Library' },
-        ],
-      };
 
     _handleIndexChange = index => this.setState({ index });
 
@@ -181,10 +217,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     margin: 10,
   },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
+  imagePick: {
+    width: 1000,
+    height: 1000,
+    alignSelf: 'center'
   },
    buttonText: {
       padding: 20,
